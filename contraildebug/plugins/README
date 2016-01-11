@@ -1,9 +1,0 @@
-ContrailDebugger Plugin Tutorial
---------------------------------
-Contrailebugger can be extended through plugins, These plugins allows
-the user to add new debug paths to contrail debugger with less effort
-and without modifying code in the underlying contail debug infra.
-
-Example Plugin
---------------
-
