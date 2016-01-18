@@ -4,25 +4,26 @@ from keystoneclient.v2_0 import client as auth_client
 
 from vnc_cfg_api_server.utils import parse_args
 
+from contraildebug.common.constants import AUTH_CONF_FILE
 
-AUTH_CONF_FILE = '/etc/contrail/contrail-keystone-auth.conf'
 
 class HandleBase(object):
     def __init__(self, args):
         self.args, _ = parse_args('--conf_file %s' % AUTH_CONF_FILE)
         # TODO: Consider taking commandline tenant name as well
         self.tenant = self.args.admin_tenant_name
-        self.auth_url = '%s://%s:%d/v2.0' %(self.args.auth_protocol,
-                                            self.args.auth_host,
-                                            self.auth_port)
+        self.auth_url = '%s://%s:%d/v2.0' % (self.args.auth_protocol,
+                                             self.args.auth_host,
+                                             self.auth_port)
+
 
 class AuthService(HandleBase):
     def get_handle(self):
         auth_handle = auth_client.Client(username=self.args.admin_username,
-                         password=self.args.admin_password,
-                         tenant_name=self.args.tenant,
-                         auth_url=self.auth_url,
-                         insecure=True)
+                                         password=self.args.admin_password,
+                                         tenant_name=self.args.tenant,
+                                         auth_url=self.auth_url,
+                                         insecure=True)
         return auth_handle
 
     def get_auth_token(self):
@@ -43,7 +44,8 @@ class NetworkService(HandleBase):
 class ComputeService(HandleBase):
     def get_handle(self):
         auth_handle = AuthService.get_handle()
-        compute_handle = compute_client.Client('2',
+        compute_handle = compute_client.Client(
+                                '2',
                                 auth_url=self.auth_url,
                                 username=self.args.admin_username,
                                 api_key=self.args.admi_password,

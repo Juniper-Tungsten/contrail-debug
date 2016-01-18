@@ -15,9 +15,11 @@ class JsonDrv(object):
             return json.loads(resp.text)
         return None
 
+
 class XmlDrv(object):
     def load(self, url):
         return etree.fromstring(requests.get(url).text)
+
 
 class Inspect(object):
     def __init__(self, ip, port, drv=JsonDrv, **kwargs):
@@ -25,7 +27,6 @@ class Inspect(object):
         self.ip = ip
         self.port = int(port)
         self.drv = drv(**kwargs)
-        self.log = log(self).logger
 
     def _mk_url_str(self, path=''):
         if path.startswith('http:'):
@@ -44,12 +45,12 @@ class Inspect(object):
     def elem2dict(self, node, alist=False):
         d = list() if alist else dict()
         for e in node.iterchildren():
-            #key = e.tag.split('}')[1] if '}' in e.tag else e.tag
+            # key = e.tag.split('}')[1] if '}' in e.tag else e.tag
             if e.tag == 'list':
                 value = self.elem2dict(e, alist=True)
             else:
                 value = e.text if e.text else self.elem2dict(e)
-            if type(d) == type(list()):
+            if isinstance(d, list):
                 d.append(value)
             else:
                 d[e.tag] = value
@@ -61,6 +62,8 @@ class Inspect(object):
         obj = getattr(self, obj_type+'_obj')
         if obj_id in obj:
             return obj[obj_id]
-        resp = self.http_get(self.get_path(obj_type=obj_type, obj_id=obj_id, **kwargs))
-        obj[obj_id] = self.process_response(resp, obj_type=obj_type, obj_id=obj_id, match=match)
+        resp = self.http_get(self.get_path(obj_type=obj_type,
+                                           obj_id=obj_id, **kwargs))
+        obj[obj_id] = self.process_response(resp, obj_type=obj_type,
+                                            obj_id=obj_id, match=match)
         return obj[obj_id]

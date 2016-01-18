@@ -1,5 +1,6 @@
 from contraildebug.orchestrator.openstack.main import Openstack
 
+
 class VirtualMachine(Openstack):
     def __init__(self):
         super(VirtualMachine, self).__init__()
@@ -16,12 +17,13 @@ class VirtualMachine(Openstack):
 
     def get_host_of_vm(self, vm_id):
         vm_obj = self.get_vm_obj(vm_id)
-        return host_name_map[vm_obj._info['OS-EXT-SRV-ATTR:hypervisor_hostname']]
+        return self.host_name_map[
+                   vm_obj._info['OS-EXT-SRV-ATTR:hypervisor_hostname']]
 
     def get_vm_ips(self, vm_id):
         vm_obj = self.get_vm_obj(vm_id)
         assigned_ips = list()
-        for vn,ips in vm_obj._info['addresses'].iteritems():
+        for vn, ips in vm_obj._info['addresses'].iteritems():
             for ip in ips:
                 assigned_ips.append(ip['addr'])
         return assigned_ips
@@ -40,7 +42,7 @@ class VirtualMachine(Openstack):
     def verify_ip_assigned(self, vm_id):
         vm_ips = self.get_vm_ips(vm_id)
         if vm_ips:
-            self.log('VM %s has been assigned %s'%(vm_id, str(vm_ips)))
+            self.log('VM %s has been assigned %s' % (vm_id, str(vm_ips)))
         else:
             self.log('VM hasnt been assigned an ip address')
 
