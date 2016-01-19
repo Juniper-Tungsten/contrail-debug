@@ -1,4 +1,9 @@
+import os
+import datetime
 import logging
+
+
+LOG_DIR = os.path.expanduser('~/contraildebug/logs/')
 
 
 def setup_logger(log_file):
@@ -15,7 +20,7 @@ def setup_logger(log_file):
     # create formatter and add it to the handlers
     formatter = logging.Formatter(
         '[%(asctime)s %(module)s(%(lineno)s) %(levelname)s]: %(message)s',
-        datefmt='%a %b %d %H:%M:%S %Y', fsecs="%.9f")
+        datefmt='%a %b %d %H:%M:%S %Y')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
     # add the handlers to the logger
@@ -23,3 +28,10 @@ def setup_logger(log_file):
     log.addHandler(ch)
 
     return log
+
+
+def gen_log_filename(sub_name):
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
+    ts = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+    return '%s/contraildebug-%s-%s.log' % (LOG_DIR, sub_name, ts)
