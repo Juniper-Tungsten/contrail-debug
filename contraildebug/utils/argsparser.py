@@ -17,7 +17,7 @@ def get_scripts():
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='sub_command')
     for script in get_scripts():
         script.add_sub_command(subparsers)
 

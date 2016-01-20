@@ -19,7 +19,7 @@ class HandleBase(object):
 
 class AuthService(HandleBase):
     def get_handle(self):
-        auth_handle = auth_client.Client(username=self.args.admin_username,
+        auth_handle = auth_client.Client(username=self.args.admin_user,
                                          password=self.args.admin_password,
                                          tenant_name=self.args.tenant,
                                          auth_url=self.auth_url,
@@ -35,7 +35,7 @@ class NetworkService(HandleBase):
     def get_handle(self):
         return network_client.Client('2.0',
                                      auth_url=self.auth_url,
-                                     username=self.args.admin_username,
+                                     username=self.args.admin_user,
                                      password=self.args.admin_password,
                                      tenant_name=self.args.tenant,
                                      insecure=True)
@@ -47,7 +47,7 @@ class ComputeService(HandleBase):
         compute_handle = compute_client.Client(
                                 '2',
                                 auth_url=self.auth_url,
-                                username=self.args.admin_username,
+                                username=self.args.admin_user,
                                 api_key=self.args.admi_password,
                                 project_id=self.args.tenant,
                                 auth_token=auth_handle.get_auth_token(),
