@@ -14,7 +14,14 @@ def get_hosts(method_prefix):
     hosts = list()
     for host_dict in host_dict_list:
         host_obj = host_read_method(host_dict['fq_name'])
-        host_ip_address = getattr(host_obj, '%s_ip_address' % method_prefix)
+        if method_prefix == 'bgp_router':
+            vendor = getattr(host_obj.bgp_router_parameters, 'vendor')
+            if vendor == 'contrail':
+                host_ip_address = getattr(host_obj.bgp_router_parameters,
+                                          'address')
+        else:
+            host_ip_address = getattr(host_obj,
+                                      '%s_ip_address' % method_prefix)
         hosts.append(host_ip_address)
 
     return hosts
@@ -53,4 +60,4 @@ def get_all_hosts_in_cluster():
     # all_hosts.extend(get_webui_hosts())
     all_hosts.extend(get_compute_hosts())
 
-    return all_hosts
+    return list(set(all_hosts))

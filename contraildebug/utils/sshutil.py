@@ -5,8 +5,34 @@ import logging
 from fabric.files import append
 from fabric.context_managers import settings
 
+from contraildebug.common.constants import SSH_PUBKEY_FILE
+
 
 log = logging.getLogger("contraildebug.utils.sshutil")
+
+
+def ssh(host, user, password=None, key_filename=SSH_PUBKEY_FILE):
+    """ SSH to any host.
+    """
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    if password:
+        ssh.connect(host, username=user, password=password)
+    elif key_filename:
+        ssh.connect(host, username=user, key_filename=key_filenme)
+    return ssh
+
+
+def execute(cmd, ssh):
+    """Executing command over SSH
+    """
+    out = None
+    err = None
+    log.debug("Executing command: %s" % cmd)
+    stdin, stdout, stderr = ssh.exec_command(cmd)
+    out = stdout.read()
+    err = stderr.read()
+    return (out, err)
 
 
 def public_key_present():
