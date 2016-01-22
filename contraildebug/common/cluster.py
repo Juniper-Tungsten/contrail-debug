@@ -22,7 +22,7 @@ def get_hosts(method_prefix):
         else:
             host_ip_address = getattr(host_obj,
                                       '%s_ip_address' % method_prefix)
-        hosts.append(host_ip_address)
+        hosts.append(str(host_ip_address))
 
     return hosts
 

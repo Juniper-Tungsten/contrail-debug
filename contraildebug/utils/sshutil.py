@@ -1,8 +1,9 @@
-from fabric.api import local, sudo
 import os
 import logging
+import paramiko
 
-from fabric.files import append
+from fabric.api import sudo, hide
+from fabric.contrib.files import append
 from fabric.context_managers import settings
 
 from contraildebug.common.constants import SSH_PUBKEY_FILE
@@ -19,7 +20,7 @@ def ssh(host, user, password=None, key_filename=SSH_PUBKEY_FILE):
     if password:
         ssh.connect(host, username=user, password=password)
     elif key_filename:
-        ssh.connect(host, username=user, key_filename=key_filenme)
+        ssh.connect(host, username=user, key_filename=key_filename)
     return ssh
 
 
@@ -38,18 +39,19 @@ def execute(cmd, ssh):
 def public_key_present():
     """ Checks whether the SSH public key is already created.
     """
-    if os.path.isfile('~/.ssh/id_rsa.pub'):
-        log.debug("SSH Public key is present")
+    if os.path.isfile(SSH_PUBKEY_FILE):
+        log.debug("SSH Public key is present in localhost")
         return True
     else:
-        log.debug("SSH Public key is not present")
+        log.debug("SSH Public key is not present in localhost")
         return False
 
 
 def ssh_keygen():
     """ Generates SSH keys.
     """
-    local('ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""')
+    log.debug("Generating SSH keys")
+    os.system('yes | ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""')
     log.debug("Generated SSH keys")
 
 
@@ -57,8 +59,10 @@ def copy_public_key(target_ip, username, password):
     """ Copies over public key of localhost to the authorized_keys
     file of the specified host.
     """
-    public_key = local('cat ~/.ssh/id_rsa.pub', capture=True)
-    with settings(host_string='%s@%s' % (username, target_ip),
+    with open(SSH_PUBKEY_FILE, 'r') as fd:
+        public_key = fd.read()
+    with settings(hide('everything'),
+                  host_string='%s@%s' % (username, target_ip),
                   password=password):
         append('~/.ssh/authorized_keys', public_key, use_sudo=True)
         sudo('chmod 640 ~/.ssh/authorized_keys')
