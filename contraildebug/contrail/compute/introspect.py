@@ -1,8 +1,11 @@
 import utils
-from contraildebug.common.introspect import Inspect, XmlDrv
+import logging
+from contraildebug.contrail.common.introspect import Inspect, XmlDrv
+
+log = logging.getLogger('contraildebug.contrail.compute.introspect')
 
 
-class Agent(Inspect):
+class AgentInspect(Inspect):
     obj_path = {'vmi': 'Snh_PageReq?x=begin:-1,end:-1,table:db.interface.0',
                 'vn': 'Snh_PageReq?x=begin:-1,end:-1,table:db.vn.0', }
     xml_path = {
@@ -12,7 +15,7 @@ class Agent(Inspect):
 
     def __init__(self, ip):
         port = utils.get_agent_listen_port()
-        super(Agent, self).__init__(ip, port, drv=XmlDrv)
+        super(AgentInspect, self).__init__(ip, port, drv=XmlDrv)
         self.vrf_obj = dict()
 
     def get_path(self, obj_type, **kwargs):
@@ -38,7 +41,8 @@ class Agent(Inspect):
         for node in response.xpath('./peer/list/AgentXmppData'):
             if node.find('cfg_controller').text.lower() == 'yes':
                 return node.find('controller_ip').text
-        raise
+        raise RuntimeError("No control-node has active XMPP connection"
+                           " to compute: %s" % self.ip)
 
     def get_vmi(self, vmi_id, field=None):
         vmi = self.get('vmi', vmi_id)
@@ -46,13 +50,13 @@ class Agent(Inspect):
 
     def verify_vmi_links(self, vmi_id, ri_name, address):
         if self.get_vmi(vmi_id, 'vrf_name') != ri_name:
-            self.log('VMI doesnt have link to vrf')
+            log.error('VMI doesnt have link to vrf')
         else:
-            self.log('VMI has vrf set')
+            log.info('VMI has vrf set')
         if self.get_vmi(vmi_id, 'ip_addr') in address:
-            self.log('VMI has ip address set')
+            log.info('VMI has ip address set')
         else:
-            self.log('VMI doesnt have ip address set')
+            log.error('VMI doesnt have ip address set')
 
     def fetch_routes(self, vrf, af='v4'):
         rt_dict = {'v4': 'uc.route.0', 'v6': 'uc.route6.0',
@@ -70,7 +74,7 @@ class Agent(Inspect):
             if route['src_ip'] == prefix and route['src_plen'] == str(plen):
                 return route['path_list']['list']
         else:
-            self.log('Unable to find route with prefix %s and plen %s in vrf' %
+            log.error('Unable to find route with prefix %s and plen %s in vrf' %
                      (prefix, str(plen)), vrf_name)
             return []
 
@@ -79,11 +83,11 @@ class Agent(Inspect):
                                              plen=32, af='v4'):
             if (path['label'] == label and
                     path['nh']['NhSandeshData'][nh_type] == nh_value):
-                self.log('Route for prefix %s found with label %s' %
+                log.info('Route for prefix %s found with label %s' %
                          (prefix, label))
                 return True
         else:
-            self.log('Route for prefix %s doesnt exist or has wrong index %s' %
+            log.error('Route for prefix %s doesnt exist or has wrong index %s' %
                      (prefix, label))
             return False
 
@@ -91,14 +95,14 @@ class Agent(Inspect):
         for (vmi_id, vmi_obj) in vmis.iteritems():
             ri = self.get('vn', vmi_obj['vn'][0]['uuid'])
             if ri and ri['vrf_name'] == ':'.join(vmi_obj['ri'][0]['to']):
-                self.log('VN has link to RI')
+                log.info('VN has link to RI')
             else:
-                self.log('VN doesnt have link to RI')
+                log.error('VN doesnt have link to RI')
             self.verify_vmi_links(vmi_id, ri['vrf_name'], vmi_obj['ip'])
             intf = self.get_vmi(vmi_id, 'name')
             label = self.get_vmi(vmi_id, 'label')
             for prefix in vmi_obj['ip']:
-                self.log('Verifying prefix %s with label %s'
+                log.info('Verifying prefix %s with label %s'
                          'and nh %s in vrf %s' %
                          (prefix, label, intf, ri['vrf_name']))
                 self.verify_prefix(ri['vrf_name'], prefix, label,

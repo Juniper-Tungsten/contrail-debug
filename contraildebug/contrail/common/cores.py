@@ -7,7 +7,7 @@ from constants import SSH_PUBKEY_FILE
 from exception import SetupIssue
 
 
-log = logging.getLogger('contraildebug.common.cores')
+log = logging.getLogger('contraildebug.contrail.common.cores')
 
 
 def check_contrail_cores(nodes='all'):
@@ -20,7 +20,7 @@ def check_contrail_cores(nodes='all'):
                       key_filename=SSH_PUBKEY_FILE):
             crashes = sudo('ls /var/crashes/')
             if crashes:
-                log.info('========== %s ===========\n%s' % (node, crashes))
+                log.error('========== %s ===========\n%s' % (node, crashes))
                 failure = True
     if failure:
         raise SetupIssue()

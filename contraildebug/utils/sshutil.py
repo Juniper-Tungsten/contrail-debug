@@ -6,7 +6,7 @@ from fabric.api import sudo, hide
 from fabric.contrib.files import append
 from fabric.context_managers import settings
 
-from contraildebug.common.constants import SSH_PUBKEY_FILE
+from contraildebug.contrail.common.constants import SSH_PUBKEY_FILE
 
 
 log = logging.getLogger("contraildebug.utils.sshutil")
@@ -75,6 +75,9 @@ def setup_passwordless_login(hosts, username, password):
     """
     if not public_key_present():
         ssh_keygen()
+    log.debug("Keys already generated.")
+    log.info("Sync in progress ...")
     for host in hosts:
         log.debug("Copying SSH public key to host: %s" % host)
         copy_public_key(host, username, password)
+    log.info("Sync Complete")

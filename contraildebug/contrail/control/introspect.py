@@ -1,14 +1,18 @@
+import logging
+
 import utils
-from contraildebug.common.introspect import Inspect, XmlDrv
+from contraildebug.contrail.common.introspect import Inspect, XmlDrv
+
+log = logging.getLogger('contraildebug.contrail.config.introspect')
 
 
-class Control(Inspect):
+class ControlInspect(Inspect):
     obj_path = {'rt': 'Snh_ShowRouteReq?x='}
     xml_path = {'rt': './tables/list/ShowRouteTable'}
 
     def __init__(self, ip):
         port = utils.get_control_listen_port()
-        super(Control, self).__init__(ip, port, drv=XmlDrv)
+        super(ControlInspect, self).__init__(ip, port, drv=XmlDrv)
         self.vrf_obj = dict()
 
     def get_path(self, obj_type, obj_id, **kwargs):
@@ -44,11 +48,11 @@ class Control(Inspect):
         for path in self.get_matching_routes(vrf_name, prefix,
                                              plen=32, af='v4'):
             if path['label'] == label and path[nh_type] == nh_value:
-                self.log('Route for prefix %s found with label %s' % (
+                log.info('Route for prefix %s found with label %s' % (
                          prefix, label))
                 return True
         else:
-            self.log("Route for prefix %s doesnt exist"
+            log.error("Route for prefix %s doesnt exist"
                      "or has wrong index %s or nh" % (prefix, label))
             return False
 
@@ -56,7 +60,7 @@ class Control(Inspect):
         for (vmi_id, vmi_obj) in vmis.iteritems():
             vrf = ':'.join(vmi_obj['ri'][0]['to'])
             for prefix in vmi_obj['ip']:
-                self.log("Verifying prefix %s with label %s"
+                log.info("Verifying prefix %s with label %s"
                          "and nh %s in vrf %s" % (
                              prefix, vmi_obj['label'], agent, vrf))
                 self.verify_prefix(vrf, prefix, vmi_obj['label'],

@@ -7,7 +7,7 @@ from constants import SSH_PUBKEY_FILE
 from exception import SetupIssue
 
 
-log = logging.getLogger('contraildebug.common.status')
+log = logging.getLogger('contraildebug.contrail.common.status')
 FAIL_STATUS = ('failed', 'initializing', 'dead', 'down')
 
 
@@ -22,7 +22,7 @@ def check_contrail_status(nodes='all'):
             status = sudo('contrail-status')
             msg = '========== %s ===========\n%s' % (node, status)
             if any(fail_status in status for fail_status in FAIL_STATUS):
-                log.info(msg)
+                log.error(msg)
                 failure = True
             else:
                 log.debug(msg)

@@ -1,13 +1,16 @@
 import re
+from collections import OrderedDict
 
 from handle import AuthService, NetworkService, ComputeService
 
 
-class Openstack(object):
-    def __init__(self):
-        self.auth_handle = AuthService.get_handle()
-        self.network_handle = NetworkService.get_handle()
-        self.compute_handle = ComputeService.get_handle()
+class OpenstackDiag(object):
+    def __init__(self, tenant='admin'):
+        self.auth_handle = AuthService(tenant).get_handle()
+        self.network_handle = NetworkService().get_handle()
+        self.compute_handle = ComputeService().get_handle()
+        self.host_name_map = OrderedDict()
+        self.get_hosts()
 
     def get_hosts(self):
         self.hosts = dict()
@@ -24,7 +27,7 @@ class Openstack(object):
 
     def get_hypervisor_list(self):
         hosts = list()
-        for host_info in self.network_handle.hypervisors.list(detailed=True):
+        for host_info in self.compute_handle.hypervisors.list(detailed=True):
             hosts.append(host_info.host_ip)
             self.host_name_map[host_info.hypervisor_hostname] =\
                 host_info.host_ip

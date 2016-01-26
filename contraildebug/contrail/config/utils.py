@@ -1,7 +1,7 @@
 from vnc_cfg_api_server.utils import parse_args
 
-from contraildebug.common.constants import API_CONF_FILE
-from contraildebug.common.constants import DISCOVERY_CONF_FILE
+from contraildebug.contrail.common.constants import API_CONF_FILE
+from contraildebug.contrail.common.constants import DISCOVERY_CONF_FILE
 
 
 def get_api_listen_port():

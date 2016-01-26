@@ -1,9 +1,13 @@
-from contraildebug.orchestrator.openstack.main import Openstack
+import logging
+
+from contraildebug.orchestrator.openstack.main import OpenstackDiag
+
+log = logging.getLogger('contraildebug.orchestraor.openstack.vm')
 
 
-class VirtualMachine(Openstack):
-    def __init__(self):
-        super(VirtualMachine, self).__init__()
+class OpenstackVmDiag(OpenstackDiag):
+    def __init__(self, tenant='admin'):
+        super(OpenstackVmDiag, self).__init__(tenant)
         self.vm_obj = dict()
 
     def get_vm_obj(self, vm_id):
@@ -35,16 +39,16 @@ class VirtualMachine(Openstack):
         vm_obj = self.get_vm_obj(vm_id)
         if vm_obj._info['status'].lower() == 'active' and \
            vm_obj._info['OS-EXT-STS:power_state'] == 1:
-            self.log("VM got launched")
+            log.info("VM got launched")
         else:
-            self.log("VM is not launched")
+            log.error("VM is not launched")
 
     def verify_ip_assigned(self, vm_id):
         vm_ips = self.get_vm_ips(vm_id)
         if vm_ips:
-            self.log('VM %s has been assigned %s' % (vm_id, str(vm_ips)))
+            log.info('VM %s has been assigned %s' % (vm_id, str(vm_ips)))
         else:
-            self.log('VM hasnt been assigned an ip address')
+            log.error('VM hasnt been assigned an ip address')
 
     def verify_vm(self, vm_id):
         self.verify_vm_is_up(vm_id)

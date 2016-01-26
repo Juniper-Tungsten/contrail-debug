@@ -4,8 +4,10 @@ import sys
 import argparse
 import logging
 
-from contraildebug.common.status import check_contrail_status
-from contraildebug.common.cores import check_contrail_cores
+from contraildebug.contrail.common.status import check_contrail_status
+from contraildebug.contrail.common.cores import check_contrail_cores
+from contraildebug.contrail.common.cluster import get_topology
+from contraildebug.utils.formatutil import pretty_format
 
 
 log = logging.getLogger('contraildebug.scripts.healthcheck')
@@ -31,6 +33,8 @@ def parse_args(args_str):
 
 
 def main(args):
+    # Display topology
+    log.info(pretty_format(get_topology()))
     # Check contrail-status
     check_contrail_status(nodes=args.nodes)
     # Check for cores

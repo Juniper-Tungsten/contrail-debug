@@ -1,9 +1,20 @@
+import os
 import logging
+from collections import OrderedDict
 
-from contraildebug.config.handle import VncApiService
+from contraildebug.contrail.config.handle import VncApiService
+from contraildebug.contrail.common.constants import AUTH_CONF_FILE
 
 
-log = logging.getLogger('contraildebug.common.cluster')
+log = logging.getLogger('contraildebug.contrail.common.cluster')
+
+
+def get_orch():
+    orch = 'unsupported'
+    if os.path.exists(AUTH_CONF_FILE):
+        orch = 'openstack'
+
+    return orch
 
 
 def get_hosts(method_prefix):
@@ -51,13 +62,21 @@ def get_compute_hosts():
     return get_hosts('virtual_router')
 
 
+def get_topology():
+    topology = OrderedDict()
+    topology['config'] = get_config_hosts()
+    topology['database'] = get_database_hosts()
+    topology['collector'] = get_collector_hosts()
+    topology['control'] = get_control_hosts()
+    # topology['webui'] = get_webui_hosts()
+    topology['compute'] = get_compute_hosts()
+
+    return topology
+
+
 def get_all_hosts_in_cluster():
     all_hosts = list()
-    all_hosts.extend(get_config_hosts())
-    all_hosts.extend(get_database_hosts())
-    all_hosts.extend(get_collector_hosts())
-    all_hosts.extend(get_control_hosts())
-    # all_hosts.extend(get_webui_hosts())
-    all_hosts.extend(get_compute_hosts())
+    for role, hosts in get_topology().items():
+        all_hosts.extend(hosts)
 
     return list(set(all_hosts))

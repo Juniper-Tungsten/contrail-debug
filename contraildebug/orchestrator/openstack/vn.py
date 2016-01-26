@@ -1,9 +1,13 @@
-from contraildebug.orchestrator.openstack.main import Openstack
+import logging
+
+from contraildebug.orchestrator.openstack.main import OpenstackDiag
+
+log = logging.getLogger('contraildebug.orchestraor.openstack.vm')
 
 
-class VirtualNetwork(Openstack):
-    def __init__(self):
-        super(VirtualNetwork, self).__init__()
+class OpenstackVnDiag(OpenstackDiag):
+    def __init__(self, tenant='admin'):
+        super(OpenstackVnDiag, self).__init__(tenant)
         self.vn_obj = dict()
 
     def get_vn_ids(self, vn_names):

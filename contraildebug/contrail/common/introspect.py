@@ -1,6 +1,9 @@
 import json
+import logging
 import requests
 from lxml import etree
+
+log = logging.getLogger('contraildebug.contrail.common.introspect')
 
 
 class JsonDrv(object):

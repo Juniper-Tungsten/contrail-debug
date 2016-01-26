@@ -19,7 +19,7 @@ def setup_logger(log_file):
     ch.setLevel(logging.INFO)
     # create formatter and add it to the handlers
     formatter = logging.Formatter(
-        '[%(asctime)s %(module)s(%(lineno)s) %(levelname)s]: %(message)s',
+        '[%(asctime)s %(name)s(%(lineno)s) %(levelname)s]: %(message)s',
         datefmt='%a %b %d %H:%M:%S %Y')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)

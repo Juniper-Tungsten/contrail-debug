@@ -1,7 +1,10 @@
+import logging
 from collections import defaultdict
 
 import utils
-from contraildebug.common.introspect import Inspect
+from contraildebug.contrail.common.introspect import Inspect
+
+log = logging.getLogger('contraildebug.contrail.config.introspect')
 
 
 class Discovery(Inspect):
@@ -22,7 +25,7 @@ class Discovery(Inspect):
         return service_dict
 
 
-class ApiServer(Inspect):
+class ApiServerInspect(Inspect):
     obj_path = {'vm': 'virtual-machine',
                 'vmi': 'virtual-machine-interface',
                 'iip': 'instance-ip',
@@ -31,7 +34,7 @@ class ApiServer(Inspect):
 
     def __init__(self, ip, auth_token=None):
         port = utils.get_api_listen_port()
-        super(ApiServer, self).__init__(ip, port, auth_token=auth_token)
+        super(ApiServerInspect, self).__init__(ip, port, auth_token=auth_token)
         self.port_obj = defaultdict(dict)
 
     def get_path(self, obj_type, obj_id, **kwargs):
@@ -60,9 +63,9 @@ class ApiServer(Inspect):
         if (assigned_ips and
                 (not expected_ips or
                     set(expected_ips) == set(assigned_ips))):
-            self.log('VM have IP address assigned')
+            log.info('VM have IP address assigned')
         else:
-            self.log('VM doesnt have expected IP address, expected %s'
+            log.error('VM doesnt have expected IP address, expected %s'
                      ', assigned %s' % (expected_ips, assigned_ips))
 
     def verify_ri_links(self, vm_id, expected_ris=[]):
@@ -75,9 +78,9 @@ class ApiServer(Inspect):
         if (assigned_ris and
                 (not expected_ris or
                     set(expected_ris) == set(assigned_ris))):
-            self.log('VMI have RI link')
+            log.info('VMI have RI link')
         else:
-            self.log('VMI doesnt have RI refs')
+            log.error('VMI doesnt have RI refs')
 
     def verify_vn_links(self, vm_id, expected_vns=[]):
         assigned_vns = list()
@@ -89,9 +92,9 @@ class ApiServer(Inspect):
         if (assigned_vns and
                 (not expected_vns or
                     set(expected_vns) == set(assigned_vns))):
-            self.log('VMI have link to VN')
+            log.info('VMI have link to VN')
         else:
-            self.log('VMI doesnt have VN refs')
+            log.error('VMI doesnt have VN refs')
 
     def get_port_obj(self, vmi_id):
         self.port_obj[vmi_id['uuid']]['vn'] = vmi_id['virtual_network_refs']

@@ -7,7 +7,7 @@ import getpass
 import argparse
 
 from contraildebug.utils.sshutil import setup_passwordless_login
-from contraildebug.common.cluster import get_all_hosts_in_cluster
+from contraildebug.contrail.common.cluster import get_all_hosts_in_cluster
 
 
 log = logging.getLogger('contraildebug.scripts.syncsshkeys')

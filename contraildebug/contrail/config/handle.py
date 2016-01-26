@@ -4,10 +4,10 @@ from vnc_cfg_api_server.utils import parse_args
 from vnc_api.vnc_api import VncApi
 
 import utils
-from contraildebug.common.constants import AUTH_CONF_FILE
+from contraildebug.contrail.common.constants import AUTH_CONF_FILE
 
 
-log = logging.getLogger('contraildebug.config.handle')
+log = logging.getLogger('contraildebug.contrail.config.handle')
 
 
 class VncApiService(object):
